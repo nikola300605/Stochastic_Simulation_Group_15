@@ -50,6 +50,23 @@ def fit_lognormal(mom: Tuple[float, float]):
     return stats.lognorm(s=np.sqrt(sigma2), scale=np.exp(mu))
 
 
+class EmpiricalDist:
+    """
+    Empirical distribution of the data.
+    """
+    def __init__(self, data):
+        n = len(data)
+        self.ecdfx = np.sort(np.asarray(data, dtype=float))
+        self.ecdfy = np.arange(1, n + 1) / n
+
+    def cdf(self, x):
+        return np.searchsorted(self.ecdfx, x, side='right') / len(self.ecdfx)
+
+    def rvs(self, size=None):
+        u = np.random.uniform(size=size)
+        return self.ecdfx[np.searchsorted(self.ecdfy, u)]
+
+
 ## For simulating the Poisson process(es):
 def simPoissonProcess(lam, t):
     interArrivalTimeDist = stats.expon(scale=1/lam)
